@@ -12,6 +12,7 @@ RUN apk add --no-cache git python3 make g++ \
  && git sparse-checkout set examples/polotno-demo \
  && git checkout source \
  && cp -r /tmp/site/examples/polotno-demo/. /app/ \
+ && cd /app \
  && rm -rf /tmp/site \
  && npm install --legacy-peer-deps \
  && CI=false npm run build
