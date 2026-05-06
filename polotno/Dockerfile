@@ -2,6 +2,10 @@
 # at github.com/polotno-project/polotno-site/tree/source/examples/polotno-demo).
 # No Puter dependency - pure React + Polotno SDK in demo mode.
 # Built in CI, served via nginx as a static SPA.
+#
+# Note: react-scripts 5.0.1 has a known transitive ajv dependency conflict on
+# Node 20 (Cannot find module 'ajv/dist/compile/codegen'). We pin ajv@^8 +
+# ajv-keywords@^5 explicitly before npm run build.
 FROM node:20-alpine AS build
 WORKDIR /app
 RUN apk add --no-cache git python3 make g++ \
@@ -15,6 +19,7 @@ RUN apk add --no-cache git python3 make g++ \
  && cd /app \
  && rm -rf /tmp/site \
  && npm install --legacy-peer-deps \
+ && npm install --legacy-peer-deps ajv@^8 ajv-keywords@^5 \
  && CI=false npm run build
 
 FROM nginx:alpine
