@@ -1,11 +1,20 @@
-# Multi-stage build of polotno-puter (the open-source Polotno Studio frontend
-# running at studio.polotno.dev). Built in CI, served from nginx.
+# Multi-stage build of polotno-demo (the official minimal Polotno SDK example,
+# at github.com/polotno-project/polotno-site/tree/source/examples/polotno-demo).
+# No Puter dependency - pure React + Polotno SDK in demo mode.
+# Built in CI, served via nginx as a static SPA.
 FROM node:20-alpine AS build
 WORKDIR /app
 RUN apk add --no-cache git python3 make g++ \
- && git clone --depth=1 https://github.com/polotno-project/polotno-puter.git . \
+ && git clone --depth=1 --filter=blob:none --no-checkout --branch source \
+      https://github.com/polotno-project/polotno-site.git /tmp/site \
+ && cd /tmp/site \
+ && git sparse-checkout init --cone \
+ && git sparse-checkout set examples/polotno-demo \
+ && git checkout source \
+ && cp -r /tmp/site/examples/polotno-demo/. /app/ \
+ && rm -rf /tmp/site \
  && npm install --legacy-peer-deps \
- && npm run build
+ && CI=false npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
